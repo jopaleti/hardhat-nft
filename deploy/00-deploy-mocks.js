@@ -11,7 +11,7 @@ module.exports = async function (hre) {
 
     const args = [BASE_FEE, GAS_PRICE_LINK];
     // If we are on a local development network, we need to deploy mocks!
-    if (chainId == 31337) {
+    if (chainId != 31337) {
         log("Local network detected! Deploying mocks...");
         await deploy("VRFCoordinatorV2Mock", {
             from: deployer,
