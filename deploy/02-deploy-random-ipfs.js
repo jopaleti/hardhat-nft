@@ -23,11 +23,18 @@ const metadataTemplate = {
     ],
 };
 
+let tokenUris = [
+    "ipfs://QmaVkBn2tKmjbhphU7eyztbvSQU5EXDdqRyXZtRhSGgJGo",
+    "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
+    "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm",
+];
+
+const FUND_AMOUNT = "1000000000000000000000";
+
 module.exports = async function ({ getNamedAccounts, deployments }) {
     const { deploy, log } = deployments;
     const { deployer } = await getNamedAccounts();
     const chainId = network.config.chainId;
-    let tokenUris;
     //  Get the IPFS hashes of our images
     if (process.env.UPLOAD_TO_PINATA == "true") {
         tokenUris = await handleTokenUris();
@@ -39,31 +46,27 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         3. nft.storage https://nft.storage/
     */
     
-    let vrfCoordinatorV2Address, subscriptionId;
+    let vrfCoordinatorV2Address, subscriptionId, vrfCoordinatorV2Mock;
 
-    if (!developmentChains.includes(network.name)) {
-        console.log("Bababbababbabbabbabba")
+    if (chainId == 31337) {
         const vrf = await deployments.get("VRFCoordinatorV2Mock");
-        const vrfCoordinatorV2Mock = await ethers.getContractAt(
+        vrfCoordinatorV2Mock = await ethers.getContractAt(
             "VRFCoordinatorV2Mock",
             vrf.address
         );
-        console.log({"vrf": vrfCoordinatorV2Mock.runner.address})
-        vrfCoordinatorV2Address = vrfCoordinatorV2Mock.runner.address;
+        // vrfCoordinatorV2Address = vrfCoordinatorV2Mock.runner.address;
+        vrfCoordinatorV2Address = vrfCoordinatorV2Mock.target;
         const tx = await vrfCoordinatorV2Mock.createSubscription();
         const txReceipt = await tx.wait(1);
-        console.log({"txReceipt": txReceipt})
         // subscriptionId = txReceipt.events[0].args.subId;
         subscriptionId = BigInt(txReceipt.logs[0].topics[1]);
-        console.log({"subscriptionId": subscriptionId})
-        // subscriptionId = ethers.BigNumber.from(subscriptionId);
 
         // Fund the subscription
         // Our mock makes it so we don't actually have to worry about sending fund
-        // await vrfCoordinatorV2Mock.fundSubscription(
-        //     subscriptionId,
-        //     FUND_AMOUNT
-        // );
+        await vrfCoordinatorV2Mock.fundSubscription(
+            subscriptionId,
+            FUND_AMOUNT
+        );
     } else {
         vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2;
         subscriptionId = networkConfig[chainId].subscriptionId;
@@ -87,6 +90,12 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         waitConfirmations: network.config.blockConfirmations || 1,
     });
     log("----------------------------------------------");
+    if (chainId == 31337) {
+        await vrfCoordinatorV2Mock.addConsumer(
+            subscriptionId,
+            randomIpfsNft.address
+        );
+    }
     if (
         !developmentChains.includes(network.name) &&
         process.env.ETHERSCAN_API_KEY
