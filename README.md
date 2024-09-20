@@ -15,9 +15,9 @@ Deploy your own NFT smart contract
 - ```npx hardhat test``` — Run tests to ensure everything works.
 - ```npx hardhat deploy``` — Deploy the smart contract to your preferred network.
 # Stack 🛠️
-Solidity: Smart contract programming
-Hardhat: Ethereum development environment
-IPFS: Decentralized storage for metadata
+**Solidity:** Smart contract programming
+**Hardhat:** Ethereum development environment
+**IPFS:** Decentralized storage for metadata
 Enjoy building with BasicNFT! 🐕✨
 
 3 Contracts
@@ -25,3 +25,10 @@ Enjoy building with BasicNFT! 🐕✨
 1. Basic NFT (using ERC721 standard)
 2. Random IPFS NFT (Hosted NFT on IPFS)
 3. Dynamic SVG NFT (Hosted 100% on-Chain and image will be changed based on specific parameter)
+
+DYNAMIC SVG NFT
+- Pros: The data is on chain!
+- Cons: Much more expensive
+
+If price of ETH is above X -> Happy face
+If it's below -> Frowning face
