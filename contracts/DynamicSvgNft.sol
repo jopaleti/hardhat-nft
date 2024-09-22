@@ -41,7 +41,7 @@ contract DynamicSvgNft is ERC721 {
             string(abi.encodePacked(base64EncodedSvgPrefix, svgBase64Encoded));
     }
 
-    function minNft(int256 highValue) public {
+    function mintNft(int256 highValue) public {
         s_tokenIdToHighValue[s_tokenCounter] = highValue;
         _safeMint(msg.sender, s_tokenCounter);
         s_tokenCounter = s_tokenCounter + 1;
